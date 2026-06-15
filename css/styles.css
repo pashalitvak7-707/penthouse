@@ -1,0 +1,259 @@
+/* ===========================================================================
+   The Penthouse — scroll tour styles
+   =========================================================================== */
+
+:root {
+  --bg: #0e0e0f;
+  --fg: #f4f1ea;
+  --muted: rgba(244, 241, 234, 0.62);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --max: 720px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---------- Top progress bar ---------------------------------------------- */
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 50;
+}
+.progress__bar {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--fg);
+  transform-origin: left;
+  transition: width 0.08s linear;
+}
+
+/* ---------- Side nav dots -------------------------------------------------- */
+.dots {
+  position: fixed;
+  right: clamp(14px, 2.4vw, 34px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.dots.is-visible { opacity: 1; }
+
+.dot {
+  --c: #fff;
+  position: relative;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.dot:hover { transform: scale(1.3); }
+.dot.is-active {
+  background: var(--c);
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+}
+.dot__label {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.dot:hover .dot__label,
+.dot.is-active .dot__label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* ---------- Hero ----------------------------------------------------------- */
+.hero {
+  position: relative;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(201,163,126,0.18), transparent 60%),
+    var(--bg);
+}
+.hero__inner { padding: 0 24px; }
+.hero__kicker {
+  margin: 0 0 18px;
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(48px, 11vw, 132px);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+}
+.hero__subtitle {
+  margin: 22px 0 0;
+  font-size: clamp(14px, 1.6vw, 17px);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 42px;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 64px;
+  overflow: hidden;
+}
+.hero__cue-line {
+  display: block;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(var(--fg), transparent);
+  animation: cue 2.1s ease-in-out infinite;
+}
+@keyframes cue {
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ---------- Scenes --------------------------------------------------------- */
+.scene {
+  position: relative;
+  /* total height is set inline per scene via --len (viewport multiples) */
+  height: calc(var(--len, 2.5) * 100vh);
+}
+.scene__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  /* per-scene accent gradient sits behind the media (covers any letterboxing) */
+  background:
+    radial-gradient(130% 100% at 50% 50%, var(--accent, #222), #0a0a0b 78%);
+}
+
+/* media layers fill the stage */
+.scene__video,
+.scene__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform, filter, opacity;
+}
+
+/* blur transition: two stacked video layers */
+.scene__layer { transition: none; }
+
+/* darkening scrim so text stays legible over any clip */
+.scene__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 28%, rgba(0,0,0,0.05) 62%, rgba(0,0,0,0.62) 100%);
+  pointer-events: none;
+}
+
+/* text block */
+.scene__content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(48px, 9vh, 110px);
+  padding: 0 clamp(24px, 6vw, 96px);
+  max-width: var(--max);
+  z-index: 2;
+}
+.scene__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--fg);
+  opacity: 0.85;
+}
+.scene__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(36px, 6.4vw, 76px);
+  line-height: 1.02;
+}
+.scene__copy {
+  margin: 18px 0 0;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.7;
+  color: rgba(244, 241, 234, 0.86);
+}
+
+/* reveal animation driver — JS sets --reveal (0..1) per scene */
+.scene__content {
+  opacity: var(--reveal, 0);
+  transform: translateY(calc((1 - var(--reveal, 0)) * 28px));
+  transition: opacity 0.05s linear, transform 0.05s linear;
+}
+
+/* ---------- Outro ---------------------------------------------------------- */
+.outro {
+  min-height: 80vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background:
+    radial-gradient(120% 90% at 50% 100%, rgba(127,138,134,0.16), transparent 60%),
+    var(--bg);
+}
+.outro__inner { padding: 0 24px; max-width: 560px; }
+.outro__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(30px, 5vw, 56px);
+}
+.outro__copy {
+  margin: 18px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ---------- Reduced motion ------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero__cue-line { animation: none; }
+}

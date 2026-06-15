@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A scroll-driven tour through the penthouse." />
+  <title>The Penthouse — A Scrolling Tour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Top progress bar -->
+  <div class="progress" aria-hidden="true"><span class="progress__bar"></span></div>
+
+  <!-- Side navigation (room dots) — populated by JS -->
+  <nav class="dots" aria-label="Rooms"></nav>
+
+  <!-- Intro hero -->
+  <header class="hero" id="top">
+    <div class="hero__inner">
+      <p class="hero__kicker"></p>
+      <h1 class="hero__title"></h1>
+      <p class="hero__subtitle"></p>
+      <div class="hero__cue" aria-hidden="true">
+        <span class="hero__cue-line"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tour scenes — populated by JS from window.TOUR_CONFIG -->
+  <main id="tour"></main>
+
+  <!-- Outro -->
+  <footer class="outro">
+    <div class="outro__inner">
+      <h2 class="outro__title"></h2>
+      <p class="outro__copy"></p>
+    </div>
+  </footer>
+
+  <noscript>
+    <p style="padding:2rem;font-family:sans-serif;">This tour requires JavaScript to run the scroll transitions.</p>
+  </noscript>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
