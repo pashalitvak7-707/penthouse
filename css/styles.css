@@ -149,20 +149,34 @@ body {
   100% { transform: translateY(100%); }
 }
 
-/* ---------- Scenes --------------------------------------------------------- */
-.scene {
-  position: relative;
-  /* total height is set inline per scene via --len (viewport multiples) */
-  height: calc(var(--len, 2.5) * 100vh);
-}
-.scene__sticky {
+/* ---------- Stage + scenes ------------------------------------------------- */
+/* #tour height is set by JS so the single stage stays pinned for the whole
+   continuous timeline. */
+#tour { position: relative; }
+
+.stage {
   position: sticky;
   top: 0;
   height: 100vh;
   overflow: hidden;
-  /* per-scene accent gradient sits behind the media (covers any letterboxing) */
+  background: #0a0a0b;
+}
+
+/* one media block per scene, stacked; only the active one is shown */
+.scene-media {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  /* accent gradient sits behind the clip (covers any letterboxing) */
   background:
     radial-gradient(130% 100% at 50% 50%, var(--accent, #222), #0a0a0b 78%);
+}
+.scene-media.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /* media layers fill the stage */
@@ -176,7 +190,7 @@ body {
   will-change: transform, filter, opacity;
 }
 
-/* blur transition: two stacked video layers */
+/* blur transition: two stacked video layers, driven entirely by JS */
 .scene__layer { transition: none; }
 
 /* darkening scrim so text stays legible over any clip */

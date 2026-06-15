@@ -47,20 +47,27 @@ window.TOUR_CONFIG = {
       heading: 'The Living Room',
       copy: 'Placeholder description. Floor-to-ceiling glass, a double-height ceiling, and an open plan that flows from lounge to dining. Replace this text later.',
       accent: '#c9a37e',
-      length: 2.6,
+      length: 1.6,
     },
     {
       id: 'lr-to-bedroom',
       type: 'blur',
       // Holds the living-room clip on its LAST frame and the bedroom clip on
       // its FIRST frame, then blurs between them. No clip needed here.
+      // Because the timeline is continuous, this picks up exactly on the
+      // living room's final frame and hands off exactly on the bedroom's first.
       fromVideo: 'assets/videos/01-living-room.mp4',
       toVideo: 'assets/videos/03-master-bedroom.mp4',
+      // Mirror-wall push-in: the "from" frame zooms toward this focal point
+      // before the blur takes over. Tweak to aim at the mirror wall
+      // ("x% y%", measured from the top-left of the frame).
+      focus: '50% 46%',
+      zoom: 0.16, // how far to push in (0.16 = +16% scale)
       label: 'Toward the Bedroom',
       heading: 'Down the Hall',
       copy: 'Placeholder transition text. A quiet passage leads from the social spaces to the private wing of the residence.',
       accent: '#8c97a8',
-      length: 2.2,
+      length: 1.9,
     },
     {
       id: 'master-bedroom',
@@ -70,7 +77,7 @@ window.TOUR_CONFIG = {
       heading: 'The Master Bedroom',
       copy: 'Placeholder description. A serene retreat with a private terrace, soft natural light, and uninterrupted skyline views. Replace this text later.',
       accent: '#a88f7d',
-      length: 2.6,
+      length: 1.6,
     },
     {
       id: 'walk-in-closet',
@@ -80,7 +87,7 @@ window.TOUR_CONFIG = {
       heading: 'The Walk-in Closet',
       copy: 'Placeholder description. A bespoke dressing room with custom joinery, integrated lighting, and a dedicated island. Replace this text later.',
       accent: '#9a8466',
-      length: 2.4,
+      length: 1.5,
     },
     {
       id: 'bathroom',
@@ -90,7 +97,7 @@ window.TOUR_CONFIG = {
       heading: 'The Ensuite Bathroom',
       copy: 'Placeholder description. A spa-inspired ensuite finished in natural stone, with a freestanding tub and a rainfall shower. Replace this text later.',
       accent: '#7f8a86',
-      length: 2.4,
+      length: 1.5,
     },
   ],
 };

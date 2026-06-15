@@ -1,10 +1,15 @@
 /* ===========================================================================
-   The Penthouse — scroll engine
+   The Penthouse — continuous scroll engine
    ---------------------------------------------------------------------------
-   Builds the tour from window.TOUR_CONFIG and drives it from scroll position:
-     - "video" scenes  : scrub video.currentTime to the scroll progress
-     - "blur"  scenes  : blur + cross-fade between two held video frames
-     - text            : reveals/recedes as each scene enters/leaves
+   ONE stage is pinned for the whole tour and a single timeline runs through it.
+   As you scroll, the active clip is scrubbed; the instant it reaches its last
+   frame the next clip takes over on its first frame. Because the clips are
+   authored so each starts where the previous ended, the handoff is seamless —
+   no jump, no dead scroll between transitions.
+
+     - "video" scenes : scrub video.currentTime to the scene's progress
+     - "blur"  scenes : push in on the "from" frame (mirror wall), then blur +
+                        cross-fade into the "to" frame
    No dependencies, no build step.
    =========================================================================== */
 
@@ -15,18 +20,14 @@
   if (!CONFIG) { console.error('TOUR_CONFIG missing'); return; }
 
   var clamp = function (n, lo, hi) { return Math.max(lo, Math.min(hi, n)); };
-
-  // smooth 0..1 ramp between edges a and b
-  function ramp(x, a, b) {
+  function ramp(x, a, b) { // smoothstep 0..1 between a and b
     if (a === b) return x < a ? 0 : 1;
     var t = clamp((x - a) / (b - a), 0, 1);
-    return t * t * (3 - 2 * t); // smoothstep
+    return t * t * (3 - 2 * t);
   }
 
-  // ---- build DOM ----------------------------------------------------------
   var tour = document.getElementById('tour');
   var dotsNav = document.querySelector('.dots');
-  var sceneObjs = [];
 
   // intro / outro text
   setText('.hero__kicker', CONFIG.intro.kicker);
@@ -35,44 +36,45 @@
   setText('.outro__title', CONFIG.outro.title);
   setText('.outro__copy', CONFIG.outro.copy);
 
+  // ---- build the single pinned stage --------------------------------------
+  var stage = document.createElement('div');
+  stage.className = 'stage';
+  tour.appendChild(stage);
+
+  var scenes = [];
+  var accLen = 0; // running total of scene lengths (in viewport units)
+
   CONFIG.scenes.forEach(function (cfg, i) {
-    var section = document.createElement('section');
-    section.className = 'scene';
-    section.id = cfg.id;
-    section.style.setProperty('--len', cfg.length || 2.5);
-    section.style.setProperty('--accent', cfg.accent || '#222');
+    var media = document.createElement('div');
+    media.className = 'scene-media';
+    media.style.setProperty('--accent', cfg.accent || '#222');
 
-    var sticky = document.createElement('div');
-    sticky.className = 'scene__sticky';
-
-    var media = {};
+    var refs = {};
 
     if (cfg.type === 'blur') {
-      // two stacked video layers: "from" (held on last frame) under "to"
       var fromV = makeVideo(cfg.fromVideo);
       var toV = makeVideo(cfg.toVideo);
       fromV.className = 'scene__layer scene__layer--from';
       toV.className = 'scene__layer scene__layer--to';
-      sticky.appendChild(fromV);
-      sticky.appendChild(toV);
-      media.from = fromV;
-      media.to = toV;
-
-      // park each layer on the correct frame once metadata is known
-      fromV.addEventListener('loadedmetadata', function () {
-        seekTo(fromV, Math.max(0, fromV.duration - 0.05));
-      });
-      toV.addEventListener('loadedmetadata', function () { seekTo(toV, 0); });
+      if (cfg.focus) fromV.style.transformOrigin = cfg.focus;
+      media.appendChild(fromV);
+      media.appendChild(toV);
+      refs.from = fromV;
+      refs.to = toV;
+      // park "from" on its last frame, "to" on its first frame
+      onReady(fromV, function () { seekTo(fromV, Math.max(0, fromV.duration - 0.05)); });
+      onReady(toV, function () { seekTo(toV, 0); });
     } else {
       var v = makeVideo(cfg.src);
       v.className = 'scene__video';
-      sticky.appendChild(v);
-      media.video = v;
+      media.appendChild(v);
+      refs.video = v;
+      onReady(v, function () { seekTo(v, 0); }); // pre-seat on first frame
     }
 
     var scrim = document.createElement('div');
     scrim.className = 'scene__scrim';
-    sticky.appendChild(scrim);
+    media.appendChild(scrim);
 
     var content = document.createElement('div');
     content.className = 'scene__content';
@@ -80,107 +82,106 @@
       '<span class="scene__eyebrow"></span>' +
       '<h2 class="scene__title"></h2>' +
       '<p class="scene__copy"></p>';
-    content.querySelector('.scene__eyebrow').textContent =
-      pad(i + 1) + ' · ' + cfg.label;
+    content.querySelector('.scene__eyebrow').textContent = pad(i + 1) + ' · ' + cfg.label;
     content.querySelector('.scene__title').textContent = cfg.heading;
     content.querySelector('.scene__copy').textContent = cfg.copy;
-    sticky.appendChild(content);
+    media.appendChild(content);
 
-    section.appendChild(sticky);
-    tour.appendChild(section);
+    stage.appendChild(media);
 
     // nav dot
     var dot = document.createElement('button');
     dot.className = 'dot';
     dot.style.setProperty('--c', cfg.accent || '#fff');
     dot.innerHTML = '<span class="dot__label">' + cfg.label + '</span>';
+    var startUnits = accLen;
     dot.addEventListener('click', function () {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var target = tour.offsetTop + (startUnits + 0.02) * vh;
+      window.scrollTo({ top: target, behavior: 'smooth' });
     });
     dotsNav.appendChild(dot);
 
-    sceneObjs.push({
-      cfg: cfg,
-      type: cfg.type,
-      section: section,
-      content: content,
-      media: media,
-      dot: dot,
+    scenes.push({
+      cfg: cfg, type: cfg.type, media: media, content: content, refs: refs,
+      start: accLen, len: cfg.length || 1.6, dot: dot,
     });
+    accLen += cfg.length || 1.6;
   });
+
+  var totalUnits = accLen; // total scrub distance in viewport units
+
+  // size the tour so the stage stays pinned for exactly `totalUnits` viewports
+  function layout() {
+    tour.style.height = (totalUnits + 1) * vh + 'px';
+  }
 
   // ---- scroll loop --------------------------------------------------------
   var vh = window.innerHeight;
   var ticking = false;
+  var activeIndex = -1;
 
   function onScrollOrResize() {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(update);
-    }
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
   }
 
   function update() {
     ticking = false;
     var scrollY = window.scrollY || window.pageYOffset;
-    var docProgress = scrollY / (document.body.scrollHeight - vh || 1);
-    setBarWidth(clamp(docProgress, 0, 1) * 100);
 
-    // reveal the dots once we leave the hero
-    dotsNav.classList.toggle('is-visible', scrollY > vh * 0.6);
+    // doc-wide progress bar
+    var docMax = document.body.scrollHeight - vh || 1;
+    setBarWidth(clamp(scrollY / docMax, 0, 1) * 100);
+    dotsNav.classList.toggle('is-visible', scrollY > vh * 0.55);
 
-    var active = -1;
-    var bestDist = Infinity;
+    // position along the pinned timeline, in viewport units
+    var local = (scrollY - tour.offsetTop) / vh;        // 0 .. totalUnits
+    local = clamp(local, 0, totalUnits);
 
-    for (var i = 0; i < sceneObjs.length; i++) {
-      var s = sceneObjs[i];
-      var top = s.section.offsetTop;
-      var pinRange = s.section.offsetHeight - vh; // scroll distance while pinned
-      var p = clamp((scrollY - top) / (pinRange || 1), 0, 1);
+    // which scene are we in?
+    var idx = 0;
+    for (var i = 0; i < scenes.length; i++) {
+      if (local >= scenes[i].start) idx = i; else break;
+    }
+    var s = scenes[idx];
+    var p = clamp((local - s.start) / s.len, 0, 1);
 
-      // is the sticky stage on screen right now?
-      var onScreen = scrollY + vh > top && scrollY < top + s.section.offsetHeight;
-
-      if (onScreen) {
-        if (s.type === 'blur') driveBlur(s, p);
-        else driveVideo(s, p);
-
-        // text: in over 0.08..0.30, hold, out over 0.78..0.96
-        var reveal = ramp(p, 0.08, 0.30) * (1 - ramp(p, 0.78, 0.97));
-        s.content.style.setProperty('--reveal', reveal.toFixed(3));
-
-        // pick the most-centred scene for the active nav dot
-        var centre = Math.abs((top + s.section.offsetHeight / 2) - (scrollY + vh / 2));
-        if (centre < bestDist) { bestDist = centre; active = i; }
+    if (idx !== activeIndex) {
+      for (var k = 0; k < scenes.length; k++) {
+        scenes[k].media.classList.toggle('is-active', k === idx);
+        scenes[k].dot.classList.toggle('is-active', k === idx);
       }
+      activeIndex = idx;
     }
 
-    for (var j = 0; j < sceneObjs.length; j++) {
-      sceneObjs[j].dot.classList.toggle('is-active', j === active);
-    }
+    if (s.type === 'blur') driveBlur(s, p); else driveVideo(s, p);
+
+    // text: in 0.06..0.26, hold, out 0.80..0.97
+    var reveal = ramp(p, 0.06, 0.26) * (1 - ramp(p, 0.80, 0.97));
+    s.content.style.setProperty('--reveal', reveal.toFixed(3));
   }
 
-  // scrub a single video to the scroll progress
   function driveVideo(s, p) {
-    var v = s.media.video;
+    var v = s.refs.video;
     if (!v || !v.duration || isNaN(v.duration)) return;
     var t = p * (v.duration - 0.02);
-    if (Math.abs(v.currentTime - t) > 0.02) seekTo(v, t);
+    if (Math.abs(v.currentTime - t) > 0.015) seekTo(v, t);
   }
 
-  // blur dissolve: from-layer (sharp->blurred, fades out), to-layer (blurred->sharp, fades in)
+  // blur scene: push in on "from" (mirror wall), then blur + cross-fade to "to"
   function driveBlur(s, p) {
-    var MAX = 26; // px of blur at the mid-point
-    var from = s.media.from, to = s.media.to;
+    var MAX = 26;                                   // px blur at the dissolve
+    var ZOOM = s.cfg.zoom != null ? s.cfg.zoom : 0.16;
+    var from = s.refs.from, to = s.refs.to;
 
-    var fromOpacity = 1 - ramp(p, 0.38, 0.9);
-    var fromBlur = ramp(p, 0.0, 0.6) * MAX;
-    var toOpacity = ramp(p, 0.12, 0.66);
-    var toBlur = (1 - ramp(p, 0.4, 1.0)) * MAX;
+    // 0.0 .. ~0.5 : sharp push-in on the mirror wall
+    // 0.4 .. 1.0  : blur both and cross-fade into the bedroom
+    var fromScale = 1 + ramp(p, 0, 0.7) * ZOOM;
+    var fromBlur = ramp(p, 0.42, 0.92) * MAX;
+    var fromOpacity = 1 - ramp(p, 0.5, 0.96);
 
-    // gentle scale gives the dissolve some depth
-    var fromScale = 1 + p * 0.04;
-    var toScale = 1.06 - p * 0.06;
+    var toScale = (1 + ZOOM * 0.5) - ramp(p, 0.45, 1) * (ZOOM * 0.5);
+    var toBlur = (1 - ramp(p, 0.55, 1)) * MAX;
+    var toOpacity = ramp(p, 0.48, 0.9);
 
     from.style.opacity = fromOpacity.toFixed(3);
     from.style.filter = 'blur(' + fromBlur.toFixed(1) + 'px)';
@@ -194,23 +195,25 @@
   // ---- helpers ------------------------------------------------------------
   function makeVideo(src) {
     var v = document.createElement('video');
-    v.muted = true;
-    v.defaultMuted = true;
+    v.muted = true; v.defaultMuted = true;
     v.playsInline = true;
     v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
     v.preload = 'auto';
     v.loop = false;
     var source = document.createElement('source');
-    source.src = src;
-    source.type = 'video/mp4';
+    source.src = src; source.type = 'video/mp4';
     v.appendChild(source);
-    // kick a load so duration/frames are ready for scrubbing
     v.load();
     return v;
   }
 
-  // setting currentTime can be ignored while a seek is in flight; queue the latest
+  function onReady(v, fn) {
+    if (v.readyState >= 1 && v.duration) fn();
+    else v.addEventListener('loadedmetadata', fn, { once: true });
+  }
+
+  // seek to t, queueing the latest target if a seek is already in flight
   function seekTo(v, t) {
     t = clamp(t, 0, (v.duration || 0));
     if (v.seeking) { v._pending = t; return; }
@@ -220,28 +223,20 @@
       v.addEventListener('seeked', function () {
         if (v._pending != null) {
           var n = v._pending; v._pending = null;
-          if (Math.abs(v.currentTime - n) > 0.02) v.currentTime = n;
+          if (Math.abs(v.currentTime - n) > 0.015) v.currentTime = n;
         }
       });
     }
   }
 
-  function setText(sel, txt) {
-    var el = document.querySelector(sel);
-    if (el) el.textContent = txt;
-  }
-  function setBarWidth(pct) {
-    var bar = document.querySelector('.progress__bar');
-    if (bar) bar.style.width = pct + '%';
-  }
+  function setText(sel, txt) { var el = document.querySelector(sel); if (el) el.textContent = txt; }
+  function setBarWidth(pct) { var b = document.querySelector('.progress__bar'); if (b) b.style.width = pct + '%'; }
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
   // ---- init ---------------------------------------------------------------
+  layout();
   window.addEventListener('scroll', onScrollOrResize, { passive: true });
-  window.addEventListener('resize', function () {
-    vh = window.innerHeight;
-    onScrollOrResize();
-  });
-  window.addEventListener('load', update);
+  window.addEventListener('resize', function () { vh = window.innerHeight; layout(); onScrollOrResize(); });
+  window.addEventListener('load', function () { layout(); update(); });
   update();
 })();
