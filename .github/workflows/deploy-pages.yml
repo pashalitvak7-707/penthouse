@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+# Publishes the static site to GitHub Pages on every push to this branch.
+# One-time setup: repo Settings -> Pages -> "Build and deployment" -> Source:
+# "GitHub Actions". After that the site goes live automatically on each push.
+
+on:
+  push:
+    branches:
+      - claude/compassionate-cori-jqnsx7
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; don't cancel an in-progress run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # The site lives at the repo root (index.html, css/, js/, assets/).
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
