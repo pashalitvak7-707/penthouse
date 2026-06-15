@@ -59,9 +59,9 @@ window.TOUR_CONFIG = {
       fromVideo: 'assets/videos/01-living-room.mp4',
       toVideo: 'assets/videos/03-master-bedroom.mp4',
       // Mirror-wall push-in: the "from" frame zooms toward this focal point
-      // before the blur takes over. Tweak to aim at the mirror wall
-      // ("x% y%", measured from the top-left of the frame).
-      focus: '50% 46%',
+      // before the blur takes over. Aimed at the mirror wall on the RIGHT
+      // side of the living room ("x% y%", measured from the top-left).
+      focus: '80% 48%',
       zoom: 0.16, // how far to push in (0.16 = +16% scale)
       label: 'Toward the Bedroom',
       heading: 'Down the Hall',
@@ -78,6 +78,9 @@ window.TOUR_CONFIG = {
       copy: 'Placeholder description. A serene retreat with a private terrace, soft natural light, and uninterrupted skyline views. Replace this text later.',
       accent: '#a88f7d',
       length: 1.6,
+      // Zoom OUT this clip so its framing matches the walk-in-closet clip at
+      // the cut (1 = no change, <1 = zoomed out). Tune to taste.
+      scale: 0.9,
     },
     {
       id: 'walk-in-closet',

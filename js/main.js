@@ -67,6 +67,9 @@
     } else {
       var v = makeVideo(cfg.src);
       v.className = 'scene__video';
+      // optional static reframe so adjacent clips line up at the cut
+      if (cfg.focus) v.style.transformOrigin = cfg.focus;
+      if (cfg.scale != null) v.style.transform = 'scale(' + cfg.scale + ')';
       media.appendChild(v);
       refs.video = v;
       onReady(v, function () { seekTo(v, 0); }); // pre-seat on first frame
