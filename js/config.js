@@ -110,6 +110,13 @@ window.TOUR_CONFIG = {
    * -------------------------------------------------------------------- */
   rooms: [
     {
+      id: 'passage',
+      image: 'assets/images/room-passage.png',
+      label: 'Private Passage',
+      heading: 'The Private Passage',
+      copy: 'A quiet private corridor leads to the additional bedrooms and their bathrooms, creating a clear separation between the social areas of the penthouse and the more intimate sleeping quarters. Soft lighting, refined wall details and warm wood flooring give this transitional space an elegant, calm character.',
+    },
+    {
       id: 'childrens-bedroom',
       image: 'assets/images/room-childrens-bedroom.png',
       label: 'Second Bedroom',
@@ -143,13 +150,6 @@ window.TOUR_CONFIG = {
       label: 'Private Ensuite',
       heading: 'The Private Ensuite Bathroom',
       copy: 'This bedroom features its own private ensuite bathroom, designed for comfort and privacy. Natural stone textures, a walk-in shower, soft daylight and refined black accents create a clean, contemporary space with a calm, spa-like atmosphere.',
-    },
-    {
-      id: 'passage',
-      image: 'assets/images/room-passage.png',
-      label: 'Private Passage',
-      heading: 'The Private Passage',
-      copy: 'A quiet private corridor leads to the additional bedrooms and their bathrooms, creating a clear separation between the social areas of the penthouse and the more intimate sleeping quarters. Soft lighting, refined wall details and warm wood flooring give this transitional space an elegant, calm character.',
     },
   ],
 };
