@@ -464,7 +464,7 @@ body {
     radial-gradient(120% 90% at 50% 100%, rgba(127,138,134,0.16), transparent 60%),
     var(--bg);
 }
-.outro__inner { padding: 0 24px; max-width: 560px; }
+.outro__inner { padding: 0 24px; max-width: 640px; }
 .outro__title {
   margin: 0;
   font-family: var(--serif);
@@ -476,6 +476,76 @@ body {
   color: var(--muted);
   line-height: 1.7;
 }
+
+/* ---------- Contact -------------------------------------------------------- */
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 38px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 24px;
+  border: 1px solid rgba(244, 241, 234, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--fg);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn:hover { transform: translateY(-2px); }
+.btn:not(.btn--wa):not(.btn--tg):hover {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+/* primary (phone) button reads as filled at rest */
+.btn--primary {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.btn--primary:hover {
+  background: transparent;
+  color: var(--fg);
+  border-color: rgba(244, 241, 234, 0.5);
+}
+/* brand-coloured hovers so the channels feel interactive */
+.btn--wa:hover { background: #25d366; color: #07261a; border-color: transparent; }
+.btn--tg:hover { background: #229ed9; color: #fff; border-color: transparent; }
+
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 22px;
+}
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(244, 241, 234, 0.28);
+  border-radius: 50%;
+  color: var(--fg);
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn:hover { transform: translateY(-2px); }
+.icon-btn--ig:hover {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+  border-color: transparent;
+}
+.icon-btn--fb:hover { background: #1877f2; color: #fff; border-color: transparent; }
 
 /* ---------- Reduced motion ------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

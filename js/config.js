@@ -34,7 +34,7 @@ window.TOUR_CONFIG = {
   // Shown on the closing card after the last scene.
   outro: {
     title: 'Enquire about the residence',
-    copy: 'Placeholder closing text. Add contact details, a booking link, or a call to action here.',
+    copy: 'For private viewings, availability and pricing, get in touch with the Art Sqr team.',
   },
 
   scenes: [
