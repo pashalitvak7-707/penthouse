@@ -274,6 +274,37 @@ body {
   transition: opacity 0.05s linear, transform 0.05s linear;
 }
 
+/* ---------- Room gallery (still images) ------------------------------------ */
+.rooms { position: relative; }
+
+.room {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a0b;
+}
+.room__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform-origin: center;
+  will-change: transform;
+  /* same slow, looping push-in as the hero */
+  animation: heroZoom 32s ease-in-out infinite alternate;
+}
+
+/* reuse .scene__scrim / .scene__content styling; reveal text on scroll-in */
+.room .scene__content {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.room.is-in .scene__content {
+  opacity: 1;
+  transform: none;
+}
+
 /* ---------- Outro ---------------------------------------------------------- */
 .outro {
   min-height: 80vh;
@@ -301,5 +332,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .hero__cue-chevron,
-  .hero__bg { animation: none; }
+  .hero__bg,
+  .room__bg { animation: none; }
 }

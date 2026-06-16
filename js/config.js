@@ -102,4 +102,54 @@ window.TOUR_CONFIG = {
       length: 1.5,
     },
   ],
+
+  /* ----------------------------------------------------------------------
+   * ROOM GALLERY — still-image rooms shown after the scrubbed video tour and
+   * before the closing card. Each is a full-screen photo (with a slow zoom)
+   * and a description. Edit the copy freely; reorder/add by editing this list.
+   * -------------------------------------------------------------------- */
+  rooms: [
+    {
+      id: 'childrens-bedroom',
+      image: 'assets/images/room-childrens-bedroom.png',
+      label: 'Second Bedroom',
+      heading: 'The Children’s Bedroom',
+      copy: 'A bright, versatile second bedroom finished in soft neutral tones, with a built-in study desk, an integrated wall-mounted screen and generous wardrobe space. A calm, adaptable room with warm wood floors and gentle lighting — designed to grow with the family.',
+    },
+    {
+      id: 'private-bathroom',
+      image: 'assets/images/room-private-bathroom.png',
+      label: 'Private Bathroom',
+      heading: 'The Private Bathroom',
+      copy: 'A refined private bathroom in warm stone and timber, with a walk-in rain shower, a floating vanity and abundant natural light. Understated, tactile and impeccably finished for everyday comfort.',
+    },
+    {
+      id: 'guest-bedroom',
+      image: 'assets/images/room-guest-bedroom.png',
+      label: 'Guest Bedroom',
+      heading: 'The Guest Bedroom',
+      copy: 'An inviting guest bedroom layered in soft greys and natural light, with a plush upholstered bed, sculptural lighting and a discreet dressing area. A serene, welcoming retreat designed to make every visitor feel at home.',
+    },
+    {
+      id: 'powder-room',
+      image: 'assets/images/room-powder-room.png',
+      label: 'Powder Room',
+      heading: 'The Powder Room',
+      copy: 'A jewel-box powder room wrapped in warm timber and anchored by a sculptural red-marble basin beneath a cascade of pendant lights. A small space with a bold, memorable character.',
+    },
+    {
+      id: 'ensuite-bathroom',
+      image: 'assets/images/room-ensuite-bathroom.png',
+      label: 'Private Ensuite',
+      heading: 'The Private Ensuite Bathroom',
+      copy: 'A serene marble ensuite with a glass walk-in shower, full-height mirrored storage and a window framing the city beyond. A spa-like sanctuary bathed in natural daylight.',
+    },
+    {
+      id: 'passage',
+      image: 'assets/images/room-passage.png',
+      label: 'Private Passage',
+      heading: 'The Private Passage',
+      copy: 'A softly lit private passage in warm tones and fluted detailing, connecting the home’s quieter quarters. An elegant, considered transition that carries the residence’s calm from one space to the next.',
+    },
+  ],
 };

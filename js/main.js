@@ -112,6 +112,52 @@
 
   var totalUnits = accLen; // total scrub distance in viewport units
 
+  // ---- room gallery (still images after the video tour) -------------------
+  var roomsEl = document.getElementById('rooms');
+  if (roomsEl && Array.isArray(CONFIG.rooms)) {
+    CONFIG.rooms.forEach(function (r, i) {
+      var sec = document.createElement('article');
+      sec.className = 'room';
+      sec.id = r.id;
+
+      var bg = document.createElement('div');
+      bg.className = 'room__bg';
+      bg.style.backgroundImage = 'url("' + r.image + '")';
+      // alternate the zoom direction so adjacent rooms don't move in lockstep
+      bg.style.animationDirection = (i % 2) ? 'alternate-reverse' : 'alternate';
+      sec.appendChild(bg);
+
+      var scrim = document.createElement('div');
+      scrim.className = 'scene__scrim';
+      sec.appendChild(scrim);
+
+      var content = document.createElement('div');
+      content.className = 'scene__content';
+      content.innerHTML =
+        '<span class="scene__eyebrow"></span>' +
+        '<h2 class="scene__title"></h2>' +
+        '<p class="scene__copy"></p>';
+      content.querySelector('.scene__eyebrow').textContent = r.label;
+      content.querySelector('.scene__title').textContent = r.heading;
+      content.querySelector('.scene__copy').textContent = r.copy;
+      sec.appendChild(content);
+
+      roomsEl.appendChild(sec);
+    });
+
+    // reveal each room's text as it scrolls into view
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          e.target.classList.toggle('is-in', e.isIntersecting && e.intersectionRatio > 0.4);
+        });
+      }, { threshold: [0, 0.4, 0.75] });
+      Array.prototype.forEach.call(roomsEl.children, function (c) { io.observe(c); });
+    } else {
+      Array.prototype.forEach.call(roomsEl.children, function (c) { c.classList.add('is-in'); });
+    }
+  }
+
   // size the tour so the stage stays pinned for exactly `totalUnits` viewports
   function layout() {
     tour.style.height = (totalUnits + 1) * vh + 'px';
@@ -133,7 +179,9 @@
     // doc-wide progress bar
     var docMax = document.body.scrollHeight - vh || 1;
     setBarWidth(clamp(scrollY / docMax, 0, 1) * 100);
-    dotsNav.classList.toggle('is-visible', scrollY > vh * 0.55);
+    // dots cover the video tour only; hide them over the hero and the gallery
+    var roomsTop = roomsEl ? roomsEl.offsetTop : Infinity;
+    dotsNav.classList.toggle('is-visible', scrollY > vh * 0.55 && scrollY < roomsTop - vh * 0.5);
 
     // position along the pinned timeline, in viewport units
     var local = (scrollY - tour.offsetTop) / vh;        // 0 .. totalUnits
