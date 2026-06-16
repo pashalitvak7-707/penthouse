@@ -27,8 +27,7 @@
 window.TOUR_CONFIG = {
   // Shown on the intro hero at the very top of the page.
   intro: {
-    kicker: 'A Private Residence',
-    title: 'The Penthouse',
+    title: 'The Penthouse Residence',
     subtitle: 'Scroll to move through the home',
   },
 

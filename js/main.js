@@ -30,7 +30,6 @@
   var dotsNav = document.querySelector('.dots');
 
   // intro / outro text
-  setText('.hero__kicker', CONFIG.intro.kicker);
   setText('.hero__title', CONFIG.intro.title);
   setText('.hero__subtitle', CONFIG.intro.subtitle);
   setText('.outro__title', CONFIG.outro.title);

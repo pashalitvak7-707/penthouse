@@ -101,18 +101,41 @@ body {
   display: grid;
   place-items: center;
   text-align: center;
+  overflow: hidden;
+  /* fallback shown until assets/images/hero.jpg is added */
   background:
     radial-gradient(120% 90% at 50% 0%, rgba(201,163,126,0.18), transparent 60%),
     var(--bg);
 }
-.hero__inner { padding: 0 24px; }
-.hero__kicker {
-  margin: 0 0 18px;
-  font-size: 13px;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--muted);
+
+/* full-bleed background image — this layer is the only thing that zooms */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/images/hero.jpg');
+  background-size: cover;
+  background-position: center;
+  transform-origin: center;
+  will-change: transform;
+  /* very slow zoom that eases in and back out forever, so it never jumps */
+  animation: heroZoom 30s ease-in-out infinite alternate;
 }
+
+/* darken the image so the title stays readable */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.55) 100%);
+}
+
+@keyframes heroZoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.12); }
+}
+
+/* text sits above the image + scrim and is unaffected by the zoom */
+.hero__inner { position: relative; z-index: 1; padding: 0 24px; }
 .hero__title {
   margin: 0;
   font-family: var(--serif);
@@ -269,5 +292,6 @@ body {
 /* ---------- Reduced motion ------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero__cue-line { animation: none; }
+  .hero__cue-line,
+  .hero__bg { animation: none; }
 }
