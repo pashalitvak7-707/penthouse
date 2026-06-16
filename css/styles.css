@@ -274,36 +274,108 @@ body {
   transition: opacity 0.05s linear, transform 0.05s linear;
 }
 
-/* ---------- Room gallery (still images) ------------------------------------ */
-.rooms { position: relative; }
-
-.room {
+/* ---------- Room gallery: auto-playing crossfade showcase ------------------ */
+.rooms {
   position: relative;
   height: 100vh;
   overflow: hidden;
   background: #0a0a0b;
 }
-.room__bg {
+
+/* crossfading image layers */
+.gallery__stage { position: absolute; inset: 0; }
+.gallery__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.gallery__slide.is-active { opacity: 1; }
+.gallery__img {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
-  transform-origin: center;
+  transform: scale(1.03);
   will-change: transform;
-  /* same slow, looping push-in as the hero */
-  animation: heroZoom 32s ease-in-out infinite alternate;
+}
+/* slow Ken Burns push-in while a room is on screen */
+.gallery__slide.is-active .gallery__img {
+  transform: scale(1.12);
+  transition: transform 6.8s ease-out;
 }
 
-/* reuse .scene__scrim / .scene__content styling; reveal text on scroll-in */
-.room .scene__content {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.9s ease, transform 0.9s ease;
+/* text block (crossfaded on change); reuses .scene__* type styles */
+.gallery__content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(84px, 13vh, 150px);
+  padding: 0 clamp(24px, 6vw, 96px);
+  max-width: var(--max);
+  z-index: 3;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
-.room.is-in .scene__content {
-  opacity: 1;
-  transform: none;
+.gallery__content.is-out { opacity: 0; transform: translateY(12px); }
+.gallery__count {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
 }
+
+/* side arrows */
+.gallery__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  padding: 16px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  opacity: 0.55;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.45));
+  transition: opacity 0.25s ease;
+}
+.gallery__arrow:hover { opacity: 1; }
+.gallery__arrow--prev { left: clamp(6px, 2vw, 30px); }
+.gallery__arrow--next { right: clamp(6px, 2vw, 30px); }
+
+/* segmented progress bars (clickable) */
+.gallery__bars {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 5vh, 48px);
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 10px;
+  width: min(440px, 64vw);
+}
+.gallery__bar {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: rgba(244, 241, 234, 0.22);
+  cursor: pointer;
+  overflow: hidden;
+  transition: height 0.2s ease, background 0.2s ease;
+}
+.gallery__bar:hover { height: 4px; background: rgba(244, 241, 234, 0.4); }
+.gallery__bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--fg);
+}
+.gallery__bar.is-done .gallery__bar-fill { width: 100%; }
+@keyframes barFill { from { width: 0; } to { width: 100%; } }
 
 /* ---------- Outro ---------------------------------------------------------- */
 .outro {
@@ -332,6 +404,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .hero__cue-chevron,
-  .hero__bg,
-  .room__bg { animation: none; }
+  .hero__bg { animation: none; }
+  .gallery__slide.is-active .gallery__img { transition: none; transform: scale(1.03); }
 }

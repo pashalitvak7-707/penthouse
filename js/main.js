@@ -112,51 +112,147 @@
 
   var totalUnits = accLen; // total scrub distance in viewport units
 
-  // ---- room gallery (still images after the video tour) -------------------
+  // ---- room gallery: auto-playing crossfade showcase with manual control --
   var roomsEl = document.getElementById('rooms');
-  if (roomsEl && Array.isArray(CONFIG.rooms)) {
-    CONFIG.rooms.forEach(function (r, i) {
-      var sec = document.createElement('article');
-      sec.className = 'room';
-      sec.id = r.id;
+  if (roomsEl && Array.isArray(CONFIG.rooms) && CONFIG.rooms.length) {
+    buildGallery(roomsEl, CONFIG.rooms);
+  }
 
-      var bg = document.createElement('div');
-      bg.className = 'room__bg';
-      bg.style.backgroundImage = 'url("' + r.image + '")';
-      // alternate the zoom direction so adjacent rooms don't move in lockstep
-      bg.style.animationDirection = (i % 2) ? 'alternate-reverse' : 'alternate';
-      sec.appendChild(bg);
+  function buildGallery(root, rooms) {
+    var n = rooms.length;
+    var AUTOPLAY = 5200;   // ms each room is shown
+    var index = 0, timer = null, inView = false;
 
-      var scrim = document.createElement('div');
-      scrim.className = 'scene__scrim';
-      sec.appendChild(scrim);
+    // layered images (crossfade + Ken Burns)
+    var stage = el('div', 'gallery__stage');
+    var slides = rooms.map(function (r) {
+      var s = el('div', 'gallery__slide');
+      var img = el('div', 'gallery__img');
+      img.style.backgroundImage = 'url("' + r.image + '")';
+      s.appendChild(img);
+      stage.appendChild(s);
+      return s;
+    });
+    root.appendChild(stage);
+    root.appendChild(el('div', 'scene__scrim'));
 
-      var content = document.createElement('div');
-      content.className = 'scene__content';
-      content.innerHTML =
-        '<span class="scene__eyebrow"></span>' +
-        '<h2 class="scene__title"></h2>' +
-        '<p class="scene__copy"></p>';
-      content.querySelector('.scene__eyebrow').textContent = r.label;
-      content.querySelector('.scene__title').textContent = r.heading;
-      content.querySelector('.scene__copy').textContent = r.copy;
-      sec.appendChild(content);
+    // text block (crossfaded on change)
+    var content = el('div', 'gallery__content');
+    content.innerHTML =
+      '<span class="gallery__count"></span>' +
+      '<span class="scene__eyebrow"></span>' +
+      '<h2 class="scene__title"></h2>' +
+      '<p class="scene__copy"></p>';
+    root.appendChild(content);
+    var elCount = content.querySelector('.gallery__count');
+    var elEye = content.querySelector('.scene__eyebrow');
+    var elTitle = content.querySelector('.scene__title');
+    var elCopy = content.querySelector('.scene__copy');
 
-      roomsEl.appendChild(sec);
+    // controls: arrows + segmented progress bars
+    var prev = el('button', 'gallery__arrow gallery__arrow--prev');
+    prev.setAttribute('aria-label', 'Previous room');
+    prev.innerHTML = chevron('left');
+    var next = el('button', 'gallery__arrow gallery__arrow--next');
+    next.setAttribute('aria-label', 'Next room');
+    next.innerHTML = chevron('right');
+    root.appendChild(prev); root.appendChild(next);
+
+    var bars = el('div', 'gallery__bars');
+    var fills = rooms.map(function (r, i) {
+      var b = el('button', 'gallery__bar');
+      b.setAttribute('aria-label', r.heading);
+      var f = el('span', 'gallery__bar-fill');
+      b.appendChild(f);
+      b.addEventListener('click', function () { go(i); });
+      bars.appendChild(b);
+      return f;
+    });
+    root.appendChild(bars);
+
+    function fillContent(r) {
+      elCount.textContent = pad(index + 1) + ' / ' + pad(n);
+      elEye.textContent = r.label;
+      elTitle.textContent = r.heading;
+      elCopy.textContent = r.copy;
+    }
+
+    function go(to) {
+      to = (to % n + n) % n;
+      var changed = to !== index || elTitle.textContent === '';
+      index = to;
+      slides.forEach(function (s, k) { s.classList.toggle('is-active', k === index); });
+      fills.forEach(function (f, k) {
+        f.parentNode.classList.toggle('is-done', k < index);
+        f.parentNode.classList.toggle('is-active', k === index);
+        if (k !== index) { f.style.animation = 'none'; } // reset non-active fills
+      });
+      if (changed) {
+        content.classList.add('is-out');
+        setTimeout(function () { fillContent(rooms[index]); content.classList.remove('is-out'); }, 320);
+      }
+      restart();
+    }
+
+    // restart the active progress bar + the autoplay timer
+    function restart() {
+      var f = fills[index];
+      f.style.animation = 'none';
+      void f.offsetWidth;                       // force reflow to replay
+      f.style.animation = 'barFill ' + AUTOPLAY + 'ms linear forwards';
+      f.style.animationPlayState = (inView && !root.classList.contains('is-paused')) ? 'running' : 'paused';
+      clearTimeout(timer);
+      if (inView && !root.classList.contains('is-paused')) {
+        timer = setTimeout(function () { go(index + 1); }, AUTOPLAY);
+      }
+    }
+
+    function pause() {
+      root.classList.add('is-paused');
+      clearTimeout(timer);
+      if (fills[index]) fills[index].style.animationPlayState = 'paused';
+    }
+    function resume() {
+      if (!root.classList.contains('is-paused')) return;
+      root.classList.remove('is-paused');
+      go(index); // re-sync bar + timer from the current room
+    }
+
+    prev.addEventListener('click', function () { go(index - 1); });
+    next.addEventListener('click', function () { go(index + 1); });
+    root.addEventListener('mouseenter', pause);
+    root.addEventListener('mouseleave', resume);
+    document.addEventListener('keydown', function (e) {
+      if (!inView) return;
+      if (e.key === 'ArrowRight') { go(index + 1); }
+      else if (e.key === 'ArrowLeft') { go(index - 1); }
     });
 
-    // reveal each room's text as it scrolls into view
+    // start/stop with visibility so it doesn't run off-screen
     if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (entries) {
+      new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          e.target.classList.toggle('is-in', e.isIntersecting && e.intersectionRatio > 0.4);
+          inView = e.isIntersecting && e.intersectionRatio > 0.45;
+          if (inView) { root.classList.remove('is-paused'); go(index); }
+          else { clearTimeout(timer); }
         });
-      }, { threshold: [0, 0.4, 0.75] });
-      Array.prototype.forEach.call(roomsEl.children, function (c) { io.observe(c); });
+      }, { threshold: [0, 0.45, 0.8] }).observe(root);
     } else {
-      Array.prototype.forEach.call(roomsEl.children, function (c) { c.classList.add('is-in'); });
+      inView = true;
     }
+
+    fillContent(rooms[0]);
+    go(0);
   }
+
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+  function chevron(dir) {
+    var d = dir === 'left' ? 'M15 5 L8 12 L15 19' : 'M9 5 L16 12 L9 19';
+    return '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="' + d + '"/></svg>';
+  }
+
 
   // size the tour so the stage stays pinned for exactly `totalUnits` viewports
   function layout() {
