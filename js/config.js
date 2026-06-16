@@ -66,7 +66,7 @@ window.TOUR_CONFIG = {
       heading: 'Down the Hall',
       copy: 'A refined hallway that begins at the penthouse entrance and connects the living area with the master bedroom. Along the way, a compact workspace by the window creates a quiet spot for reading, planning or working from home — turning the passage into a functional and elegant part of everyday life.',
       accent: '#8c97a8',
-      length: 1.9,
+      length: 1.2,
     },
     {
       id: 'master-bedroom',
@@ -77,9 +77,6 @@ window.TOUR_CONFIG = {
       copy: 'A serene master bedroom designed as a private retreat. Warm wood textures, soft natural light and floor-to-ceiling glazing create a calm, elegant atmosphere, while refined details and generous proportions bring the comfort of a five-star suite into everyday living.',
       accent: '#a88f7d',
       length: 1.6,
-      // Zoom OUT this clip so its framing matches the walk-in-closet clip at
-      // the cut (1 = no change, <1 = zoomed out). Tune to taste.
-      scale: 0.9,
     },
     {
       id: 'walk-in-closet',
