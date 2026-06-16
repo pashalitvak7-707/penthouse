@@ -141,18 +141,18 @@ window.TOUR_CONFIG = {
       copy: 'A refined guest bedroom designed for comfort, privacy and a sense of quiet elegance. Soft textures, sculptural wall details and generous natural light create a welcoming retreat, while the connected dressing area adds the feeling of a private suite.',
     },
     {
-      id: 'powder-room',
-      image: 'assets/images/room-powder-room.png',
-      label: 'Powder Room',
-      heading: 'The Powder Room',
-      copy: 'The private corridor also leads to a beautifully designed guest powder room. Rich marble, warm wood textures, soft lighting and sculptural details create a refined space for guests — elegant, intimate and seamlessly connected to the penthouse layout.',
-    },
-    {
       id: 'ensuite-bathroom',
       image: 'assets/images/room-ensuite-bathroom.png',
       label: 'Private Ensuite',
       heading: 'The Private Ensuite Bathroom',
       copy: 'This bedroom features its own private ensuite bathroom, designed for comfort and privacy. Natural stone textures, a walk-in shower, soft daylight and refined black accents create a clean, contemporary space with a calm, spa-like atmosphere.',
+    },
+    {
+      id: 'powder-room',
+      image: 'assets/images/room-powder-room.png',
+      label: 'Powder Room',
+      heading: 'The Powder Room',
+      copy: 'The private corridor also leads to a beautifully designed guest powder room. Rich marble, warm wood textures, soft lighting and sculptural details create a refined space for guests — elegant, intimate and seamlessly connected to the penthouse layout.',
     },
   ],
 };
