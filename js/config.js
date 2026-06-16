@@ -64,7 +64,7 @@ window.TOUR_CONFIG = {
       zoom: 0.16, // how far to push in (0.16 = +16% scale)
       label: 'Toward the Bedroom',
       heading: 'Down the Hall',
-      copy: 'Placeholder transition text. A quiet passage leads from the social spaces to the private wing of the residence.',
+      copy: 'A refined hallway that begins at the penthouse entrance and connects the living area with the master bedroom. Along the way, a compact workspace by the window creates a quiet spot for reading, planning or working from home — turning the passage into a functional and elegant part of everyday life.',
       accent: '#8c97a8',
       length: 1.9,
     },
