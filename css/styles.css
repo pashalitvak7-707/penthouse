@@ -2,16 +2,56 @@
    The Penthouse — scroll tour styles
    =========================================================================== */
 
+/* ---------- Fonts ---------------------------------------------------------- */
+/* Bellet — used (in capitals) for every room / title name */
+@font-face {
+  font-family: 'Bellet';
+  src: url('../assets/fonts/Bellet.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+/* PF DIN — used for all body text */
+@font-face {
+  font-family: 'PFDin';
+  src: url('../assets/fonts/PFDin-Light.ttf') format('truetype');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'PFDin';
+  src: url('../assets/fonts/PFDin-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'PFDin';
+  src: url('../assets/fonts/PFDin-Medium.ttf') format('truetype');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'PFDin';
+  src: url('../assets/fonts/PFDin-Bold.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
 :root {
   --bg: #0e0e0f;
   --fg: #f4f1ea;
   --muted: rgba(244, 241, 234, 0.62);
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --serif: 'Bellet', Georgia, serif;
+  --sans: 'PFDin', system-ui, -apple-system, sans-serif;
   --max: 720px;
 }
 
 * { box-sizing: border-box; }
+
+/* every room / title name: Bellet, in capitals */
+.hero__title,
+.scene__title,
+.preloader__title,
+.outro__title {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
 
 html { scroll-behavior: smooth; }
 
