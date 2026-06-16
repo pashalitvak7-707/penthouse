@@ -485,6 +485,13 @@ body {
   gap: 14px;
   margin-top: 38px;
 }
+/* make the three channel buttons equal width */
+.contact .btn {
+  flex: 1 1 0;
+  min-width: 160px;
+  max-width: 220px;
+  justify-content: center;
+}
 .btn {
   display: inline-flex;
   align-items: center;
