@@ -336,7 +336,8 @@
     var fromBlur = ramp(p, 0.42, 0.92) * MAX;
     var fromOpacity = 1 - ramp(p, 0.5, 0.96);
 
-    var toScale = (1 + ZOOM * 0.5) - ramp(p, 0.45, 1) * (ZOOM * 0.5);
+    var toBase = s.cfg.toScale || 1;            // crop to hide the clip's baked border
+    var toScale = (toBase + ZOOM * 0.5) - ramp(p, 0.45, 1) * (ZOOM * 0.5);
     var toBlur = (1 - ramp(p, 0.55, 1)) * MAX;
     var toOpacity = ramp(p, 0.48, 0.9);
 

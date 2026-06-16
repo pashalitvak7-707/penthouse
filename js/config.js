@@ -62,6 +62,9 @@ window.TOUR_CONFIG = {
       // side of the living room ("x% y%", measured from the top-left).
       focus: '80% 48%',
       zoom: 0.16, // how far to push in (0.16 = +16% scale)
+      // Resting scale of the incoming bedroom frame — matches that clip's crop
+      // (see master-bedroom `scale`) so the dissolve resolves with no grey border.
+      toScale: 1.1,
       label: 'Toward the Bedroom',
       heading: 'Down the Hall',
       copy: 'A refined hallway that begins at the penthouse entrance and connects the living area with the master bedroom. Along the way, a compact workspace by the window creates a quiet spot for reading, planning or working from home — turning the passage into a functional and elegant part of everyday life.',
@@ -77,6 +80,9 @@ window.TOUR_CONFIG = {
       copy: 'A serene master bedroom designed as a private retreat. Warm wood textures, soft natural light and floor-to-ceiling glazing create a calm, elegant atmosphere, while refined details and generous proportions bring the comfort of a five-star suite into everyday living.',
       accent: '#a88f7d',
       length: 1.6,
+      // The clip has a grey border baked into its edges; zoom in slightly to
+      // crop it off so it fills the screen (1 = none, >1 = crop more).
+      scale: 1.1,
     },
     {
       id: 'walk-in-closet',
