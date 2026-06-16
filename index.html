@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="is-loading">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +9,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <!-- critical preloader styles, inlined to avoid any flash before the stylesheet loads -->
+  <style>
+    html.is-loading, html.is-loading body { overflow: hidden; height: 100%; }
+    #preloader {
+      position: fixed; inset: 0; z-index: 1000;
+      display: grid; place-items: center;
+      background: #0e0e0f; color: #f4f1ea;
+      transition: opacity 0.9s ease;
+    }
+    #preloader.is-done { opacity: 0; pointer-events: none; }
+  </style>
+  <noscript><style>html.is-loading, html.is-loading body { overflow: auto; } #preloader { display: none !important; }</style></noscript>
 </head>
 <body>
+  <!-- Loading screen -->
+  <div id="preloader" class="preloader" role="status" aria-label="Loading the residence">
+    <div class="preloader__inner">
+      <h1 class="preloader__title" aria-hidden="true"></h1>
+      <div class="preloader__meter"><span class="preloader__bar"></span></div>
+      <div class="preloader__pct">0%</div>
+    </div>
+  </div>
+
   <!-- Top progress bar -->
   <div class="progress" aria-hidden="true"><span class="progress__bar"></span></div>
 
@@ -50,6 +71,7 @@
   </noscript>
 
   <script src="js/config.js"></script>
+  <script src="js/preload.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

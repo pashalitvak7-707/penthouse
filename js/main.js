@@ -19,6 +19,16 @@
   var CONFIG = window.TOUR_CONFIG;
   if (!CONFIG) { console.error('TOUR_CONFIG missing'); return; }
 
+  // Defer heavy downloads until the preloader has warmed the cache, so assets
+  // aren't fetched twice. Falls back to running immediately if no preloader.
+  function whenReady(cb) {
+    var fired = false;
+    var run = function () { if (fired) return; fired = true; cb(); };
+    if (window.__PENTHOUSE_READY || !document.getElementById('preloader')) return run();
+    window.addEventListener('penthouse:ready', run, { once: true });
+    setTimeout(run, 47000); // ultimate fallback
+  }
+
   var clamp = function (n, lo, hi) { return Math.max(lo, Math.min(hi, n)); };
   function ramp(x, a, b) { // smoothstep 0..1 between a and b
     if (a === b) return x < a ? 0 : 1;
@@ -128,7 +138,8 @@
     var slides = rooms.map(function (r) {
       var s = el('div', 'gallery__slide');
       var img = el('div', 'gallery__img');
-      img.style.backgroundImage = 'url("' + r.image + '")';
+      // assign the background only once the preloader has cached it
+      whenReady(function () { img.style.backgroundImage = 'url("' + r.image + '")'; });
       s.appendChild(img);
       stage.appendChild(s);
       return s;
@@ -345,12 +356,12 @@
     v.playsInline = true;
     v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
-    v.preload = 'auto';
+    v.preload = 'none';            // hold off until the preloader is done
     v.loop = false;
     var source = document.createElement('source');
     source.src = src; source.type = 'video/mp4';
     v.appendChild(source);
-    v.load();
+    whenReady(function () { v.preload = 'auto'; v.load(); });
     return v;
   }
 

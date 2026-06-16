@@ -25,6 +25,43 @@ body {
   overflow-x: hidden;
 }
 
+/* ---------- Preloader ------------------------------------------------------ */
+.preloader__inner { text-align: center; padding: 0 24px; }
+.preloader__title {
+  margin: 0 0 38px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(30px, 7vw, 84px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.pl-word { display: inline-block; white-space: nowrap; }
+.pl-ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.5em);
+  filter: blur(8px);
+  animation: plLetter 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i) * 0.055s + 0.15s);
+}
+@keyframes plLetter { to { opacity: 1; transform: none; filter: blur(0); } }
+
+.preloader__meter {
+  width: min(280px, 56vw);
+  height: 1px;
+  margin: 0 auto;
+  background: rgba(244, 241, 234, 0.18);
+  overflow: hidden;
+}
+.preloader__bar { display: block; height: 100%; width: 0; background: var(--fg); }
+.preloader__pct {
+  margin-top: 16px;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Top progress bar ---------------------------------------------- */
 .progress {
   position: fixed;
@@ -406,4 +443,5 @@ body {
   .hero__cue-chevron,
   .hero__bg { animation: none; }
   .gallery__slide.is-active .gallery__img { transition: none; transform: scale(1.03); }
+  .pl-ch { animation: none; opacity: 1; transform: none; filter: none; }
 }
